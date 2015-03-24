@@ -11,10 +11,31 @@
 
 %% Initial Variables
 
-B
-t_b
-J
-u_o
-l_o
-r
-M
+g = 9.8; %m/s^2
+B = 0.08; %kgm^2/s
+t_b = 10000; %Nm
+J = 0.8; %kgm^3
+v_o = 24.5872; %m/s  %55 mph
+u_o = 0.9;
+l_o = 0.22;
+r = 0.3; %m
+M = 440; %kg
+F_z = M * g;
+
+%% Equations
+syms t x v r w l; %time, distance to wall, velocity of car, ?, angular velocity of wheels, slip
+
+a = diff( v, t );
+alpha = diff( w, t );
+
+diff( w, t ) = diff( r, t, 2 );
+diff( v, t ) = diff( x, t, 2 );
+
+l = ( v - r*w ) / v;
+u = ( l_o * l ) / ( (l_o^2) + (l^2) );
+
+diff( r, t, 2 ) = ( ( 2 * u_o * l_o * r * v * F_z * ( v - r * w ) ) /( (v^2)*(l_o^2) + ((v - r * w)^2) ) ) - B*w - t_b;
+diff( x, t, 2 ) = (( 2 * u_o * l_o * v * F_z )*( r * w - v ))/ ( M * ( ( (v - r*w)^2 ) + (l_o^2)*(v^2) ) );
+
+[ solv_dv, solv_dw ] = solve( [a, alpha], [v, w])
+
