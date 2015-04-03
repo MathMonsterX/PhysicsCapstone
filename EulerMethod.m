@@ -3,14 +3,14 @@ t_o = 0;        % s
 g = 9.81;       % m/s^2
 J = 0.8;        % kg*m^2 - 
 B = 0.08;        % kg*m^2/s
-tau = 1000;       % N*m - braking torque
+tau = 500;       % N*m - braking torque
 l_o = 0.22;
 u_o = 0.9;
 M = 220;        % kg - Normal Mass
 r = 0.28;       % m - radius of wheel
 delta_t = 0.001; % s - time step
 
-t = delta_t;
+t = t_o;
 
 v_o = 25; %m/s
 v_i = v_o;
@@ -28,7 +28,7 @@ u_array = [];
 x_array = [];
 
 fprintf('%5s \t %10s \t %10s \t %10s \t %10s \t %10s \n', 't', 'v', 'w', 'u(l)', 'l', 'x')
-
+mult = 1;
 while ( v_i > 0.1 )
     
         l = 1 - ( (r*w_i) / v_i );
@@ -41,9 +41,11 @@ while ( v_i > 0.1 )
         u = 2*u_o*( (l_o * l) / ( (l_o^2) + (l^2) ) );
         
         v_i1 = v_i - u * g * delta_t;
-        w_i1 = (delta_t/J)*( u * M * g * r - B * w_i - tau ) + w_i;
-        if( w_i1 < 0 )
-            w_i1 = 0;
+        w_i1 = mult*(delta_t/J)*( u * M * g * r - B * w_i - tau ) + w_i;
+        if( w_i1 <= 0 )
+            mult = 0;
+        else
+            mult = 1;
         end
         
         x_1 = v_i*delta_t + x;
@@ -64,6 +66,106 @@ while ( v_i > 0.1 )
         x_array = cat(1, x_array, x);
 end;
 
-comet( t_array, l_array )
+plot( t_array, u_array )
 
-%% Improved Method of Euler Computing Using 2 Timesteps rather than 1
+%% Midpoint  Approximation - Computing Using 2 Timesteps 
+t_o = 0;        % s
+g = 9.81;       % m/s^2
+J = 0.8;        % kg*m^2 - 
+B = 0.08;        % kg*m^2/s
+tau = 500;       % N*m - braking torque
+l_o = 0.22;
+u_o = 0.9;
+M = 220;        % kg - Normal Mass
+r = 0.28;       % m - radius of wheel
+delta_t = 0.001; % s - time step
+
+t = t_o;
+
+v_o = 25; %m/s
+v_i = v_o;
+
+w_o = v_i / r;
+w_i = w_o;
+
+x = 0;
+
+w_array = [];
+v_array = [];
+t_array = [];
+l_array = [];
+u_array = [];
+x_array = [];
+
+fprintf('%5s \t %10s \t %10s \t %10s \t %10s \t %10s \n', 't', 'v', 'w', 'u(l)', 'l', 'x')
+mult1 = 1;
+mult2 = 1;
+while ( v_i > 0.1 )
+    
+        % First block ------------------
+        l_1 = 1 - ( (r*w_i) / v_i );
+        if ( l_1 > 1 ) 
+            l_1 = 1;
+        elseif ( l_1 < 0 )
+            l_1 = 0;
+        end
+        
+        u_1 = 2*u_o*( (l_o * l_1) / ( (l_o^2) + (l_1^2) ) );
+        
+        w_i1 = mult1*(delta_t/J)*( u_1 * M * g * r - B * w_i - tau ) + w_i;
+        if( w_i1 <= 0 )
+            mult1 = 0;
+        else
+            mult1 = 1;
+        end
+        
+        v_i1 = v_i - u_1 * g * delta_t;
+        x_1 = v_i1*delta_t + x;
+        % -------------------------------
+        
+        % Second Block ------------------
+        
+        l_2 = 1 - ( (r*w_i1) / v_i1 );
+        if ( l_2 > 1 ) 
+            l_2 = 1;
+        elseif ( l_2 < 0 )
+            l_2 = 0;
+        end
+        
+        u_2 = 2*u_o*( (l_o * l_2) / ( (l_o^2) + (l_2^2) ) );
+        w_i2 = mult2*(delta_t/J)*( u_2 * M * g * r - B * w_i1 - tau ) + w_i1;
+        if( w_i2 <= 0 )
+            mult2 = 0;
+        else
+            mult2 = 1;
+        end
+        v_i2 = v_i1 - u_2 * g * delta_t;
+        x_2 = v_i2*delta_t + x_1;
+        %----------------------------------
+        % Mid points -----------------------
+        u = (u_1 + u_2) / 2;
+        l = (l_1 + l_2) / 2;
+        v = (v_i1 + v_i2) / 2;
+        w = (w_i2 + w_i1) / 2;
+        x = (x_2 + x_1) / 2 ;
+        
+        fprintf('%5.2f \t %10.4f \t %10.4f \t %10.4f \t %10.4f \t %10.4f\n', t, v, w, u, l, x)
+    
+        w_array = cat(1, w_array, w);
+        v_array = cat(1, v_array, v);
+        t_array = cat(1, t_array, t);
+        l_array = cat(1, l_array, l);
+        u_array = cat(1, u_array, u);
+        x_array = cat(1, x_array, x);
+        
+        t = t + delta_t;
+        v_i = v;
+        w_i = w;
+end;
+%plot(  t_array, u_array )
+%plot(  t_array, l_array )
+%plot(  t_array, v_array )
+%plot(  t_array, w_array )
+%plot(  t_array, x_array )
+%plot(  w_array, v_array )
+plot3( t_array, v_array, w_array )
