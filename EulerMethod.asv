@@ -3,7 +3,7 @@ t_o = 0;        % s
 g = 9.81;       % m/s^2
 J = 0.8;        % kg*m^2 - 
 B = 0.08;        % kg*m^2/s
-tau = 1000;       % N*m - braking torque
+tau = 100;       % N*m - braking torque
 l_o = 0.22;
 u_o = 0.9;
 M = 220;        % kg - Normal Mass
@@ -64,6 +64,6 @@ while ( v_i > 0.1 )
         x_array = cat(1, x_array, x);
 end;
 
-comet( t_array, l_array )
+comet( t_array, u_array )
 
 %% Improved Method of Euler Computing Using 2 Timesteps rather than 1
