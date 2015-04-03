@@ -1,14 +1,14 @@
 %% Euler Method of Computing
-t_o = 0;
-g = 9.81; % m/s^2
-J = 0.8;    %kg*m^2
-B = 0.0;   %kg*m^2/s
-tau = 75;  %braking torque
+t_o = 0;        % s
+g = 9.81;       % m/s^2
+J = 0.8;        % kg*m^2 - 
+B = 0.08;        % kg*m^2/s
+tau = 10;       % N*m - braking torque
 l_o = 0.22;
 u_o = 0.9;
-M = 220;    %kg - Normal Mass
-r = 0.22; %m - radius of wheel
-delta_t = 0.1;  %time step
+M = 220;        % kg - Normal Mass
+r = 0.28;       % m - radius of wheel
+delta_t = 0.001; % s - time step
 
 t = delta_t;
 
@@ -29,15 +29,23 @@ x_array = [];
 
 fprintf('%5s \t %10s \t %10s \t %10s \t %10s \t %10s \n', 't', 'v', 'w', 'u(l)', 'l', 'x')
 
-while ( v_i > 0.00001 )
-    
-        
+while ( v_i > 0.1 )
     
         l = 1 - ( (r*w_i) / v_i );
-        u = (l_o * l) / ( (l_o^2) + (l^2) );
-    
+        if ( l > 1 ) 
+            l = 1;
+        elseif ( l < 0 )
+            l = 0;
+        end
+        
+        u = 2*u_o*( (l_o * l) / ( (l_o^2) + (l^2) ) );
+        
         v_i1 = v_i - u * g * delta_t;
         w_i1 = (delta_t/J)*( u * M * g * r - B * w_i - tau );
+        if( w_i1 < 0 )
+            w_i1 = 0;
+        end
+        
         x_1 = v_i*delta_t + x;
     
         fprintf('%5.2f \t %10.4f \t %10.4f \t %10.4f \t %10.4f \t %10.4f\n', t, v_i1, w_i1, u, l, x)
@@ -46,6 +54,7 @@ while ( v_i > 0.00001 )
         v_i = v_i1;
         w_i = w_i1;
         x = x_1;
+        
         
         w_array = cat(1, w_array, w_i);
         v_array = cat(1, v_array, v_i);
@@ -56,4 +65,3 @@ while ( v_i > 0.00001 )
 end;
 
 comet( t_array, u_array )
-shading flat
