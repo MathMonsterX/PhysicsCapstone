@@ -66,7 +66,6 @@ for tau=linspace(562, 564, 10)
             w_i = w_i1;
             x = x_1;
 
-            plot( t_array, l_array )
             w_array = cat(1, w_array, w_i);
             v_array = cat(1, v_array, v_i);
             t_array = cat(1, t_array, t);
@@ -76,17 +75,56 @@ for tau=linspace(562, 564, 10)
             
     end;
 
-    %plot( t_array, x_array )
+    figure %new figure window
+    plot( t_array, u_array, 'g', t_array, l_array, 'b' )
+    str = sprintf('Plot At: Initial Velocity = %f m/s Braking Torque = %.2f', v_o, tau);
+    title(str);
+    xlabel('Time (s)')
+    ylabel('u or l')
+    
+    figure %new figure window
+    plot( t_array, v_array, 'r', t_array, x_array, 'm', t_array, w_array, 'k' )
+    title(str);
+    xlabel('Time (s)')
+    ylabel('x/v/w (m or m/s or rev/s)')
+    
+%     figure %new figure window
+%     plot( t_array, w_array )
+%     title(str);
+%     xlabel('Time (s)')
+%     ylabel('w (rev/s)')
+    
+    
     x_max_array = cat(1, x_max_array, [max( x_array ), tau]);
     t_max_array = cat(1, t_max_array, [max( t_array ), tau]);
     u_max_array = cat(1, u_max_array, [max( u_array ), tau]);
     l_max_array = cat(1, l_max_array, [max( l_array ), tau]);
 end;
-plotx =  x_max_array(:,1)
-ploty = x_max_array(:,2)
-plot( plotx, ploty )
-min(t_max_array)
-max(u_max_array)
+
+figure %new figure window
+plot( t_max_array(:,2), t_max_array(:,1))
+title('Experiment Totals: Stopping Time vs Braking Torque')
+ylabel('Stopping Time (s)')
+xlabel('tau (N*m)')
+
+figure %new figure window
+plot( t_max_array(:,2), x_max_array(:,1))
+title('Experiment Totals: Stopping Distance vs Braking Torque')
+ylabel('Stopping Distance, x (m)')
+xlabel('tau (N*m)')
+
+figure %new figure window
+plot( t_max_array(:,2), u_max_array(:,1), 'g', t_max_array(:,2), l_max_array(:,1), 'b')
+title('Experiment Totals: Highest Slip and Coeff of Friction Values vs. Time')
+xlabel('tau (N*m)')
+ylabel('u/l')
+
+
+%plotx =  x_max_array(:,1)
+%ploty = x_max_array(:,2)
+%plot( plotx, ploty )
+%min(t_max_array)
+%max(u_max_array)
 
 %% Midpoint  Approximation - Computing Using 2 Timesteps 
 t_o = 0;        % s
